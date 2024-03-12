@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presidential Results</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="static/css/styles.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 mb-4">Presidential Results</h1>
+        <!-- Overall National Results -->
+        <div class="mb-5">
+            <h2>Overall National Presidential Results</h2>
+            <canvas id="nationalChart" width="400" height="200"></canvas>
+            <p>Total Votes Cast: <span id="totalVotes"></span></p>
+        </div>
+        <!-- County Specific Results -->
+        <div>
+            <h2>County Specific Results</h2>
+            <div id="countyResults">
+                <!-- Results for each county will be dynamically populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Custom JS -->
+    <script src="static/js/scripts3.js"></script>
+</body>
+</html>
