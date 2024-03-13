@@ -18,10 +18,10 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="admin_login.html">Admin Login</a></li>
-                        <li class="nav-item"><a class="nav-link" href="admin_registration.html">Admin Register</a></li>
-                        <li class="nav-item"><a class="nav-link" href="faq.html">FAQ</a></li>
-                        <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_login') }}">Admin Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_register') }}">Admin Register</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('faq') }}">FAQ</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('about') }}">About</a></li>
                     </ul>
                 </div>
             </div>
@@ -40,7 +40,7 @@
                         </div>
                     </div>
                     <div class="col-xl-5 col-xxl-6 text-center">
-                        <img class="img-fluid rounded-3 my-5" src="assets/vote.png" alt="Join the Democratic Process" />
+                        <img class="img-fluid rounded-3 my-5" src="static/assets/vote.png" alt="Join the Democratic Process" />
                         <h2 class="fw-bolder text-white mb-2">Join the Democratic Process</h2>
                         <p class="text-white-50 mb-4">Stay informed, make educated decisions, and participate in the democratic process.</p>
                         <a class="btn btn-primary btn-lg" href="login.html">Get Started</a>

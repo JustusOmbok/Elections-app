@@ -9,11 +9,16 @@ class Admin(db.Model):
     phone_number = db.Column(db.String(20), nullable=True)
     email = db.Column(db.String(100), nullable=True)
 
-class Candidate(db.Model):
+class President(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     party_name = db.Column(db.String(100), nullable=False)
-    party_symbol = db.Column(db.String(50), nullable=False)
+
+class Governor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    party_name = db.Column(db.String(100), nullable=False)
+    county = db.Column(db.String(50), nullable=False)
 
 class Voter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,5 +32,6 @@ class Voter(db.Model):
 
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'), nullable=False)
+    president_id = db.Column(db.Integer, db.ForeignKey('president.id'), nullable=False)
+    governor_id = db.Column(db.Integer, db.ForeignKey('governor.id'), nullable=False)
     voter_id = db.Column(db.Integer, db.ForeignKey('voter.id'), nullable=False)

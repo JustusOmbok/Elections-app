@@ -20,10 +20,11 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="governor_registration.html">Register Governor</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/admin/governor_register">Register Governor</a></li>
                         <li class="nav-item"><a class="nav-link" href="results.html">View Results</a></li>
                         <li class="nav-item"><a class="nav-link" href="faq.html">FAQ</a></li>
                         <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/admin/logout">Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -40,21 +41,16 @@
                     </div>
                     <div class="row gx-5 justify-content-center">
                         <div class="col-lg-8 col-xl-6">
-                            <form action="/register_presidential_candidate" method="POST">
+                            <form action="/president/register" method="POST">
                                 <!-- Name input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="name" name="name" type="text" placeholder="Enter your name as on ID..." />
+                                    <input class="form-control" id="name" name="name" type="text" placeholder="Enter candidate's name..." />
                                     <label for="name">Candidate Name</label>
                                 </div>
                                 <!-- Party Name input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="name" name="name" type="text" placeholder="Enter your name as on ID..." />
-                                    <label for="name">Party Name</label>
-                                </div>
-                                <!-- National ID input-->
-                                <div class="form-floating mb-3">
-                                    <input class="form-control" id="national_id" name="national_id" type="text" placeholder="Enter your national ID number..." />
-                                    <label for="national_id">National ID Number</label>
+                                    <input class="form-control" id="party_name" name="party_name" type="text" placeholder="Enter party name..." />
+                                    <label for="party_name">Party Name</label>
                                 </div>
                                 <!-- Submit Button-->
                                 <div class="d-grid"><button class="btn btn-primary btn-lg" type="submit">Submit</button></div>

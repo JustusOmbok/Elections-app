@@ -1,16 +1,42 @@
-from flask import render_template, request, jsonify, url_for
+from flask import render_template, request, jsonify, url_for, redirect
 from app import app, db
 from flask import session
 import requests
-from app.models import Admin, Candidate, Voter, Vote
+from app.models import Admin, President, Governor, Voter, Vote
 
 @app.route('/')
 def landng_page():
     return render_template('landing_page.html')
 
 @app.route('/home')
-def index():
+def home():
     return render_template('home.html')
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
+@app.route('/admin_register')
+def admin_register():
+    return render_template('admin_registration.html')
+
+@app.route('/admin/president_register')
+def president_register():
+    return render_template('presidential_registration.html')
+
+@app.route('/admin/governor_register')
+def governor_register():
+    return render_template('governor_registration.html')
+
+# Route for rendering the admin dashboard
+@app.route('/admin/dashboard', methods=['GET'])
+def admin_dashboard():
+    # Check if the admin is logged in
+    if 'admin_logged_in' in session and session['admin_logged_in']:
+        return render_template('admin_dashboard.html')
+    else:
+        # If not logged in, redirect to the admin login page
+        return redirect(url_for('admin_login'))
 
 @app.route('/presidential_voting')
 def presidential_voting():
@@ -20,10 +46,6 @@ def presidential_voting():
 def governor_voting():
     return render_template('governor_voting.html')
 
-#@app.route('/presidential_results')
-#def presidential_results():
- #   return render_template('presidential_results.html')
-
 @app.route('/governor_results')
 def governor_results():
     return render_template('governor_results.html')
@@ -32,34 +54,76 @@ def governor_results():
 def faq():
     return render_template('faq.html')
 
+@app.route('/admin/faq')
+def admin_faq():
+    return render_template('faq.html')
+
 @app.route('/about')
 def about():
+    return render_template('about.html')
+
+@app.route('/admin/about')
+def admin_about():
     return render_template('about.html')
 
 # Admin routes
 @app.route('/admin/register', methods=['POST'])
 def register_admin():
-    data = request.json
+    data = request.form
     new_admin = Admin(work_id=data['work_id'], station=data['station'], name=data['name'], 
                       phone_number=data.get('phone_number'), email=data.get('email'))
     # Additional logic for admin registration
     db.session.add(new_admin)
     db.session.commit()
-    return jsonify({'message': 'Admin registered successfully'}), 201
+    return redirect(url_for('admin_login'))  # Redirect to admin login page
 
-@app.route('/admin/login', methods=['POST'])
+@app.route('/admin/login', methods=['GET'])
 def admin_login():
-    # Implementation for admin login
-    pass
+    return render_template('admin_login.html')
+
+# Route for handling admin login form submission
+@app.route('/admin/login', methods=['POST'])
+def admin_login_submit():
+    station = request.form.get('station')
+    work_id = request.form.get('work_id')
+
+    # Query the database for an admin with the provided Station and Work ID
+    admin = Admin.query.filter_by(station=station, work_id=work_id).first()
+
+    if admin:
+        # Set a session variable to indicate that the user is logged in
+        session['admin_logged_in'] = True
+        # Redirect to a dashboard or admin home page
+        return redirect(url_for('admin_dashboard'))
+    else:
+        # If authentication fails, redirect back to the login page with an error message
+        flash('Invalid credentials. Please try again.', 'error')
+        return redirect(url_for('admin_login'))
+
+# Route for handling admin logout
+@app.route('/admin/logout', methods=['GET'])
+def admin_logout():
+    # Clear the session variables
+    session.pop('admin_logged_in', None)
+    # Redirect to the login page
+    return redirect(url_for('admin_login'))
 
 # Candidate routes
-@app.route('/candidate/register', methods=['POST'])
-def register_candidate():
+@app.route('/president/register', methods=['POST'])
+def register_president():
     data = request.json
-    new_candidate = Candidate(name=data['name'], party_name=data['party_name'], party_symbol=data['party_symbol'])
-    db.session.add(new_candidate)
+    new_president = President(name=data['name'], party_name=data['party_name'])
+    db.session.add(new_president)
     db.session.commit()
-    return jsonify({'message': 'Candidate registered successfully'}), 201
+    return jsonify({'message': 'President registered successfully'}), 201
+
+@app.route('/governor/register', methods=['POST'])
+def register_governor():
+    data = request.json
+    new_governor = Governor(name=data['name'], party_name=data['party_name'], county=data['county_name'])
+    db.session.add(new_governor)
+    db.session.commit()
+    return jsonify({'message': 'Governor registered successfully'}), 201
 
 # Voter routes
 @app.route('/voter/register', methods=['POST'])

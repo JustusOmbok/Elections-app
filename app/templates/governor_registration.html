@@ -9,7 +9,7 @@
     <!-- Bootstrap icons-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="css/styles.css" rel="stylesheet" />
+    <link href="static/css/styles.css" rel="stylesheet" />
 </head>
 <body class="d-flex flex-column h-100">
     <main class="flex-shrink-0">
@@ -20,10 +20,11 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="presidential_registration.html">Register President</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/admin/president_register">Register President</a></li>
                         <li class="nav-item"><a class="nav-link" href="results.html">View Results</a></li>
-                        <li class="nav-item"><a class="nav-link" href="faq.html">FAQ</a></li>
-                        <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="faq">FAQ</a></li>
+                        <li class="nav-item"><a class="nav-link" href="about">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/admin/logout">Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -40,31 +41,21 @@
                     </div>
                     <div class="row gx-5 justify-content-center">
                         <div class="col-lg-8 col-xl-6">
-                            <form action="/register_presidential_candidate" method="POST">
+                            <form action="/governor/register" method="POST">
                                 <!-- Name input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="name" name="name" type="text" placeholder="Enter your name as on ID..." />
+                                    <input class="form-control" id="name" name="name" type="text" placeholder="Enter candidate's name..." />
                                     <label for="name">Candidate Name</label>
                                 </div>
                                 <!-- Party Name input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="party_name" name="party_name" type="text" placeholder="Enter your party name..." />
+                                    <input class="form-control" id="party_name" name="party_name" type="text" placeholder="Enter party name..." />
                                     <label for="party_name">Party Name</label>
                                 </div>
-                                <!-- County dropdown -->
+                                <!-- County Name input-->
                                 <div class="form-floating mb-3">
-                                    <select class="form-select" id="county" name="county">
-                                        <option value="" disabled selected>Select your county...</option>
-                                        <option value="county1">County 1</option>
-                                        <option value="county2">County 2</option>
-                                        <!-- Add more county options as needed -->
-                                    </select>
-                                    <label for="county">County</label>
-                                </div>
-                                <!-- National ID input-->
-                                <div class="form-floating mb-3">
-                                    <input class="form-control" id="national_id" name="national_id" type="text" placeholder="Enter your national ID number..." />
-                                    <label for="national_id">National ID Number</label>
+                                    <input class="form-control" id="party_name" name="party_name" type="text" placeholder="Enter party name..." />
+                                    <label for="party_name">County Name</label>
                                 </div>
                                 <!-- Submit Button-->
                                 <div class="d-grid"><button class="btn btn-primary btn-lg" type="submit">Submit</button></div>
