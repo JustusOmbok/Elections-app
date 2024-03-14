@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import Admin, Governor, President, Voter, Vote
+from app.models import Admin, Governor, President, Voter, Vote_president, Vote_governor
 
 if __name__ == '__main__':
     with app.app_context():

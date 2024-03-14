@@ -1,8 +1,10 @@
-from flask import render_template, request, jsonify, url_for, redirect, flash
+from flask import render_template, jsonify, url_for, redirect, flash
+from sqlalchemy.orm.exc import NoResultFound
 from app import app, db
-from flask import session
+from flask import session, request
 import requests
-from app.models import Admin, President, Governor, Voter, Vote
+import time
+from app.models import Admin, President, Governor, Voter, Vote_president, Vote_governor
 
 @app.route('/')
 def landing_page():
@@ -38,9 +40,12 @@ def admin_dashboard():
         # If not logged in, redirect to the admin login page
         return redirect(url_for('admin_login'))
 
-@app.route('/presidential_voting')
-def presidential_voting():
-    return render_template('presidential_voting.html')
+# Route for rendering the vote_president.html file
+@app.route('/vote/president', methods=['GET'])
+def voting_president():
+    # Retrieve all presidents from the database
+    presidents = President.query.all()
+    return render_template('vote_president.html', presidents=presidents)
 
 @app.route('/governor_voting')
 def governor_voting():
@@ -104,7 +109,7 @@ def admin_logout():
 @app.route('/president/register', methods=['POST'])
 def register_president():
     data = request.form
-    new_president = President(name=data['name'], party_name=data['party_name'])
+    new_president = President(name=data['name'], party_name=data['party_name'], party_color=data['party_color'])
     db.session.add(new_president)
     db.session.commit()
     return redirect(url_for('admin_dashboard', success='true'))
@@ -112,7 +117,7 @@ def register_president():
 @app.route('/governor/register', methods=['POST'])
 def register_governor():
     data = request.form
-    new_governor = Governor(name=data['name'], party_name=data['party_name'], county=data['county_name'])
+    new_governor = Governor(name=data['name'], party_name=data['party_name'], party_color=data['party_color'], county=data['county_name'])
     db.session.add(new_governor)
     db.session.commit()
     return redirect(url_for('admin_dashboard', success='true'))
@@ -163,27 +168,82 @@ def voter_logout():
     # Redirect to the login page
     return redirect(url_for('landing_page'))
 
-@app.route('/vote', methods=['POST'])
-def vote():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Please log in to vote'}), 401
+# Route for voting for president
+@app.route('/vote/president', methods=['POST'])
+def vote_president():
+    if 'voter_logged_in' in session:  # Ensure the voter is logged in
+        national_id = session.get('national_id')  # Get national ID from session
 
-    data = request.json
-    candidate_id = data.get('candidate_id')
+        # Query the database for the voter ID associated with the national ID
+        try:
+            voter = Voter.query.filter_by(national_id=national_id).one()
+            voter_id = voter.id
+            
+            # Check if the voter has already voted for president
+            existing_vote = Vote_president.query.filter_by(voter_id=voter_id).first()
+            if existing_vote:
+                flash('You have already voted for president.', 'error')
+                return redirect(url_for('home'))
 
-    voter_id = session['user_id']
+            president_id = request.form.get('president_id')
 
-    # Check if the voter has already voted
-    existing_vote = Vote.query.filter_by(voter_id=voter_id).first()
-    if existing_vote:
-        return jsonify({'error': 'You have already voted'}), 400
+            # Check if the president_id exists in the database
+            president = President.query.get(president_id)
+            if president:
+                # Create a new vote entry in the database
+                new_vote_president = Vote_president(president_id=president_id, voter_id=voter_id)
+                db.session.add(new_vote_president)
+                db.session.commit()
+                flash('Your vote for president has been recorded successfully.', 'success')
+                time.sleep(0.008)
+                return redirect(url_for('home'))  # Redirect to home page or dashboard
+            else:
+                flash('Invalid president selection.', 'error')
+                return redirect(url_for('vote_president'))
+        except NoResultFound:
+            flash('No voter found with the provided national ID.', 'error')
+            return redirect(url_for('vote_president'))
+    else:
+        flash('You need to be logged in to vote.', 'error')
+        return redirect(url_for('voter_login'))
 
-    # Create a new vote
-    vote = Vote(candidate_id=candidate_id, voter_id=voter_id)
-    db.session.add(vote)
-    db.session.commit()
+# Route for voting for governor
+@app.route('/vote/governor', methods=['POST'])
+def vote_governor():
+    if 'voter_logged_in' in session:  # Ensure the voter is logged in
+        national_id = session.get('national_id')  # Get national ID from session
 
-    return jsonify({'message': 'Vote cast successfully'}), 201
+        # Query the database for the voter ID associated with the national ID
+        try:
+            voter = Voter.query.filter_by(national_id=national_id).one()
+            voter_id = voter.id
+            
+            # Check if the voter has already voted for governor
+            existing_vote = Vote_governor.query.filter_by(voter_id=voter_id).first()
+            if existing_vote:
+                flash('You have already voted for governor.', 'error')
+                return redirect(url_for('home'))
+
+            governor_id = request.form.get('governor_id')
+
+            # Check if the governor_id exists in the database
+            governor = Governor.query.get(governor_id)
+            if governor:
+                # Create a new vote entry in the database
+                new_vote_governor = Vote_governor(governor_id=governor_id, voter_id=voter_id)
+                db.session.add(new_vote_governor)
+                db.session.commit()
+                flash('Your vote for governor has been recorded successfully.', 'success')
+                return redirect(url_for('home'))  # Redirect to home page or dashboard
+            else:
+                flash('Invalid governor selection.', 'error')
+                return redirect(url_for('vote_governor'))
+        except NoResultFound:
+            flash('No voter found with the provided national ID.', 'error')
+            return redirect(url_for('vote_governor'))
+    else:
+        flash('You need to be logged in to vote.', 'error')
+        return redirect(url_for('voter_login'))
 
 @app.route('/results', methods=['GET'])
 def results():
