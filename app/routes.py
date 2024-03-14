@@ -1,14 +1,14 @@
-from flask import render_template, request, jsonify, url_for, redirect
+from flask import render_template, request, jsonify, url_for, redirect, flash
 from app import app, db
 from flask import session
 import requests
 from app.models import Admin, President, Governor, Voter, Vote
 
 @app.route('/')
-def landng_page():
+def landing_page():
     return render_template('landing_page.html')
 
-@app.route('/home')
+@app.route('/voter/home')
 def home():
     return render_template('home.html')
 
@@ -54,16 +54,8 @@ def governor_results():
 def faq():
     return render_template('faq.html')
 
-@app.route('/admin/faq')
-def admin_faq():
-    return render_template('faq.html')
-
 @app.route('/about')
 def about():
-    return render_template('about.html')
-
-@app.route('/admin/about')
-def admin_about():
     return render_template('about.html')
 
 # Admin routes
@@ -106,55 +98,70 @@ def admin_logout():
     # Clear the session variables
     session.pop('admin_logged_in', None)
     # Redirect to the login page
-    return redirect(url_for('admin_login'))
+    return redirect(url_for('admin'))
 
 # Candidate routes
 @app.route('/president/register', methods=['POST'])
 def register_president():
-    data = request.json
+    data = request.form
     new_president = President(name=data['name'], party_name=data['party_name'])
     db.session.add(new_president)
     db.session.commit()
-    return jsonify({'message': 'President registered successfully'}), 201
+    return redirect(url_for('admin_dashboard', success='true'))
 
 @app.route('/governor/register', methods=['POST'])
 def register_governor():
-    data = request.json
+    data = request.form
     new_governor = Governor(name=data['name'], party_name=data['party_name'], county=data['county_name'])
     db.session.add(new_governor)
     db.session.commit()
-    return jsonify({'message': 'Governor registered successfully'}), 201
+    return redirect(url_for('admin_dashboard', success='true'))
 
 # Voter routes
-@app.route('/voter/register', methods=['POST'])
+@app.route('/voter/register', methods=['GET', 'POST'])
 def register_voter():
-    data = request.json
-    new_voter = Voter(national_id=data['national_id'], county=data['county'], name=data['name'],
-                      phone_number=data.get('phone_number'), email=data.get('email'),
-                      username=data['username'], password=data['password'])
-    # Additional logic for voter registration
-    db.session.add(new_voter)
-    db.session.commit()
-    return jsonify({'message': 'Voter registered successfully'}), 201
-
-@app.route('/voter/login', methods=['POST'])
-def voter_login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    # Verify credentials
-    voter = Voter.query.filter_by(username=username).first()
-    if voter and voter.check_password(password):
-        session['user_id'] = voter.id
-        return jsonify({'message': 'Login successful'}), 200
+    if request.method == 'POST':
+        data = request.form
+        new_voter = Voter(national_id=data['national_id'], county=data['county'], name=data['name'],
+                          phone_number=data.get('phone_number'), email=data.get('email'))
+        # Additional logic for voter registration
+        db.session.add(new_voter)
+        db.session.commit()
+        return redirect(url_for('voter_login'))
     else:
-        return jsonify({'error': 'Invalid credentials'}), 401
+        # Render the voter registration form
+        return render_template('voter_registration.html')
 
-@app.route('/voter/logout', methods=['POST'])
+@app.route('/voter/login', methods=['GET'])
+def voter_login():
+    return render_template('login.html')
+    
+# Route for handling voter login form submission
+@app.route('/voter/login', methods=['POST'])
+def voter_login_submit():
+    name = request.form.get('name')
+    national_id = request.form.get('national_id')
+
+    # Query the database for a voter with the provided Station and Work ID
+    voter = Voter.query.filter_by(name=name, national_id=national_id).first()
+
+    if voter:
+        # Set a session variable to indicate that the user is logged in
+        session['voter_logged_in'] = True
+        # Redirect to a dashboard or voter home page
+        return redirect(url_for('home'))
+    else:
+        # If authentication fails, redirect back to the login page with an error message
+        #flash('Invalid credentials. Please try again.', 'error')
+        return redirect(url_for('voter_login'))
+
+# Route for handling voter logout
+@app.route('/voter/logout', methods=['GET'])
 def voter_logout():
-    session.pop('user_id', None)
-    return jsonify({'message': 'Logout successful'}), 200
+    # Clear the session variables
+    session.pop('voter_logged_in', None)
+    # Redirect to the login page
+    return redirect(url_for('landing_page'))
 
 @app.route('/vote', methods=['POST'])
 def vote():

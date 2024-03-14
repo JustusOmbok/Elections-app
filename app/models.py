@@ -27,8 +27,6 @@ class Voter(db.Model):
     name = db.Column(db.String(100), nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
     email = db.Column(db.String(100), nullable=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
 
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
