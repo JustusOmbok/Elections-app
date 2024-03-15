@@ -49,9 +49,22 @@ def voting_president():
     presidents = President.query.all()
     return render_template('vote_president.html', presidents=presidents)
 
-@app.route('/governor_voting')
-def governor_voting():
-    return render_template('governor_voting.html')
+# Route for rendering the vote_governor.html file
+@app.route('/vote/governor', methods=['GET'])
+def voting_governor():
+    if 'voter_logged_in' in session:  
+        national_id = session.get('national_id')  
+        try:
+            voter = Voter.query.filter_by(national_id=national_id).one()
+            voter_county = voter.county
+            governors = Governor.query.filter_by(county=voter_county).all()  # Filter governors by voter's county
+            return render_template('vote_governor.html', governors=governors, voter_county=voter_county)
+        except NoResultFound:
+            flash('No voter found with the provided national ID.', 'error')
+            return redirect(url_for('vote_governor'))
+    else:
+        flash('You need to be logged in to vote.', 'error')
+        return redirect(url_for('voter_login'))
 
 @app.route('/governor_results')
 def governor_results():
@@ -229,38 +242,54 @@ def check_vote():
 def vote_governor():
     if 'voter_logged_in' in session:  # Ensure the voter is logged in
         national_id = session.get('national_id')  # Get national ID from session
-
-        # Query the database for the voter ID associated with the national ID
         try:
             voter = Voter.query.filter_by(national_id=national_id).one()
             voter_id = voter.id
-            
-            # Check if the voter has already voted for governor
-            existing_vote = Vote_governor.query.filter_by(voter_id=voter_id).first()
-            if existing_vote:
-                flash('You have already voted for governor.', 'error')
-                return redirect(url_for('home'))
 
             governor_id = request.form.get('governor_id')
-
-            # Check if the governor_id exists in the database
             governor = Governor.query.get(governor_id)
             if governor:
-                # Create a new vote entry in the database
+                # Check if the voter has already voted for this governor
+                existing_vote = Vote_governor.query.filter_by(voter_id=voter_id, governor_id=governor_id).first()
+                if existing_vote:
+                    flash('You have already voted for this governor.', 'error')
+                    return redirect(url_for('home'))
+
+                # Record the vote for president
                 new_vote_governor = Vote_governor(governor_id=governor_id, voter_id=voter_id)
                 db.session.add(new_vote_governor)
                 db.session.commit()
                 flash('Your vote for governor has been recorded successfully.', 'success')
-                return redirect(url_for('home'))  # Redirect to home page or dashboard
+                return redirect(url_for('home'))
             else:
                 flash('Invalid governor selection.', 'error')
                 return redirect(url_for('vote_governor'))
         except NoResultFound:
             flash('No voter found with the provided national ID.', 'error')
             return redirect(url_for('vote_governor'))
+        except IntegrityError:
+            flash('You have already voted for this governor.', 'error')
+            return redirect(url_for('home'))
     else:
         flash('You need to be logged in to vote.', 'error')
         return redirect(url_for('voter_login'))
+    
+@app.route('/check_vote_governor')
+def check_vote_governor():
+    if 'voter_logged_in' in session:
+        national_id = session.get('national_id')
+        try:
+            voter = Voter.query.filter_by(national_id=national_id).one()
+            voter_id = voter.id
+            existing_vote = Vote_governor.query.filter_by(voter_id=voter_id).first()
+            if existing_vote:
+                return jsonify({'alreadyVoted': True})
+            else:
+                return jsonify({'alreadyVoted': False})
+        except NoResultFound:
+            return jsonify({'alreadyVoted': False})
+    else:
+        return jsonify({'alreadyVoted': False})
 
 @app.route('/results', methods=['GET'])
 def results():
