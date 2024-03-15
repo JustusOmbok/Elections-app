@@ -2,8 +2,10 @@ from flask import render_template, jsonify, url_for, redirect, flash
 from sqlalchemy.orm.exc import NoResultFound
 from app import app, db
 from flask import session, request
+from flask import jsonify
 import requests
 import time
+from sqlalchemy.exc import IntegrityError
 from app.models import Admin, President, Governor, Voter, Vote_president, Vote_governor
 
 @app.route('/')
@@ -141,18 +143,18 @@ def register_voter():
 def voter_login():
     return render_template('login.html')
     
-# Route for handling voter login form submission
 @app.route('/voter/login', methods=['POST'])
 def voter_login_submit():
     name = request.form.get('name')
     national_id = request.form.get('national_id')
 
-    # Query the database for a voter with the provided Station and Work ID
+    # Query the database for a voter with the provided name and national_id
     voter = Voter.query.filter_by(name=name, national_id=national_id).first()
 
     if voter:
-        # Set a session variable to indicate that the user is logged in
+        # Set session variables to indicate that the user is logged in
         session['voter_logged_in'] = True
+        session['national_id'] = national_id  # Set the national_id in the session
         # Redirect to a dashboard or voter home page
         return redirect(url_for('home'))
     else:
@@ -173,39 +175,54 @@ def voter_logout():
 def vote_president():
     if 'voter_logged_in' in session:  # Ensure the voter is logged in
         national_id = session.get('national_id')  # Get national ID from session
-
-        # Query the database for the voter ID associated with the national ID
         try:
             voter = Voter.query.filter_by(national_id=national_id).one()
             voter_id = voter.id
-            
-            # Check if the voter has already voted for president
-            existing_vote = Vote_president.query.filter_by(voter_id=voter_id).first()
-            if existing_vote:
-                flash('You have already voted for president.', 'error')
-                return redirect(url_for('home'))
 
             president_id = request.form.get('president_id')
-
-            # Check if the president_id exists in the database
             president = President.query.get(president_id)
             if president:
-                # Create a new vote entry in the database
+                # Check if the voter has already voted for this president
+                existing_vote = Vote_president.query.filter_by(voter_id=voter_id, president_id=president_id).first()
+                if existing_vote:
+                    flash('You have already voted for this president.', 'error')
+                    return redirect(url_for('home'))
+
+                # Record the vote for president
                 new_vote_president = Vote_president(president_id=president_id, voter_id=voter_id)
                 db.session.add(new_vote_president)
                 db.session.commit()
                 flash('Your vote for president has been recorded successfully.', 'success')
-                time.sleep(0.008)
-                return redirect(url_for('home'))  # Redirect to home page or dashboard
+                return redirect(url_for('home'))
             else:
                 flash('Invalid president selection.', 'error')
                 return redirect(url_for('vote_president'))
         except NoResultFound:
             flash('No voter found with the provided national ID.', 'error')
             return redirect(url_for('vote_president'))
+        except IntegrityError:
+            flash('You have already voted for this president.', 'error')
+            return redirect(url_for('home'))
     else:
         flash('You need to be logged in to vote.', 'error')
         return redirect(url_for('voter_login'))
+    
+@app.route('/check_vote')
+def check_vote():
+    if 'voter_logged_in' in session:
+        national_id = session.get('national_id')
+        try:
+            voter = Voter.query.filter_by(national_id=national_id).one()
+            voter_id = voter.id
+            existing_vote = Vote_president.query.filter_by(voter_id=voter_id).first()
+            if existing_vote:
+                return jsonify({'alreadyVoted': True})
+            else:
+                return jsonify({'alreadyVoted': False})
+        except NoResultFound:
+            return jsonify({'alreadyVoted': False})
+    else:
+        return jsonify({'alreadyVoted': False})
 
 # Route for voting for governor
 @app.route('/vote/governor', methods=['POST'])
