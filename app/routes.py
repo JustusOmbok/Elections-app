@@ -1,10 +1,12 @@
 from flask import render_template, jsonify, url_for, redirect, flash
+from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 from app import app, db
 from flask import session, request
 from flask import jsonify
 import requests
 import time
+import logging
 from sqlalchemy.exc import IntegrityError
 from app.models import Admin, President, Governor, Voter, Vote_president, Vote_governor
 
@@ -291,51 +293,55 @@ def check_vote_governor():
     else:
         return jsonify({'alreadyVoted': False})
 
-@app.route('/results', methods=['GET'])
-def results():
-    # Get results from the database
-    candidates = Candidate.query.all()
+@app.route('/viewp_results', methods=['GET'])
+def viewp_results():
+    # Fetch national results
+    national_results = calculate_results()
 
-    # Format results
-    results = [{'name': candidate.name, 'votes': len(candidate.votes)} for candidate in candidates]
+    # Fetch list of counties from the database
+    counties = db.session.query(Voter.county).distinct().all()
+    counties = [county[0] for county in counties]  # Convert list of tuples to list of strings
 
-    return jsonify({'results': results}), 200
+    # Check if county parameter is provided in the request
+    county = request.args.get('county')
 
-@app.route('/presidential_results', methods=['GET'])
-def presidential_results():
-    # Fetch data from the /results route within the Flask application
-    response = requests.get(url_for('results', _external=True))
-    if response.status_code == 200:
-        data = response.json()['results']
-
-        # Extract candidate names and votes
-        candidate_names = [candidate['name'] for candidate in data]
-        votes = [candidate['votes'] for candidate in data]
-
-        # Prepare data for the national chart
-        national_data = {
-            'labels': candidate_names,
-            'datasets': [{
-                'label': 'Percentage of Votes',
-                'data': votes,
-                'backgroundColor': [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                ],
-                'borderColor': [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                ],
-                'borderWidth': 1
-            }]
-        }
-
-        # Calculate total votes
-        total_votes = sum(votes)
-
-        return render_template('presidential_results.html', national_data=national_data, total_votes=total_votes)
+    if county:
+        # Calculate county-wise results
+        county_results = calculate_results(county=county)
+        logging.debug(f"County Results: {county_results}")
+        print("County Results:", county_results)  # Debugging statement
+        return render_template('presidential_results.html', national_results=national_results, county_results=county_results, county=county, counties=counties)
     else:
-        # Handle error
-        return "Failed to fetch data from the API", 500
+        return render_template('presidential_results.html', national_results=national_results, counties=counties)
+
+def calculate_results(county=None):
+    logging.info(f"Calculating results for county: {county}")
+
+    # Query to get total votes for each president
+    if county:
+        president_votes = db.session.query(Vote_president.president_id, func.count(Vote_president.id)).\
+            join(Voter).filter(Voter.county == county).\
+            group_by(Vote_president.president_id).all()
+        total_voters = db.session.query(func.count(Vote_president.id)).\
+            join(Voter).filter(Voter.county == county).scalar()
+    else:
+        president_votes = db.session.query(Vote_president.president_id, func.count(Vote_president.id)).\
+            group_by(Vote_president.president_id).all()
+        total_voters = db.session.query(func.count(Vote_president.id)).scalar()
+
+    logging.info(f"President votes: {president_votes}")
+    logging.info(f"Total voters: {total_voters}")
+
+    # Calculate percentages
+    total_votes = sum(votes for _, votes in president_votes)
+    results = []
+    for president_id, votes in president_votes:
+        president = President.query.get(president_id)
+        percentage = (votes / total_votes) * 100 if total_votes != 0 else 0
+        results.append({
+            'president': president,
+            'votes': votes,
+            'percentage': percentage
+        })
+
+    return {'results': results, 'total_voters': total_voters}
