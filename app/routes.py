@@ -312,7 +312,9 @@ def viewp_results():
         print("County Results:", county_results)  # Debugging statement
         return render_template('presidential_results.html', national_results=national_results, county_results=county_results, county=county, counties=counties)
     else:
-        return render_template('presidential_results.html', national_results=national_results, counties=counties)
+        # Handle the case when county parameter is not provided
+        county_results = None
+        return render_template('presidential_results.html', national_results=national_results, county_results=county_results, counties=counties)
 
 def calculate_results(county=None):
     logging.info(f"Calculating results for county: {county}")
@@ -337,11 +339,57 @@ def calculate_results(county=None):
     results = []
     for president_id, votes in president_votes:
         president = President.query.get(president_id)
-        percentage = (votes / total_votes) * 100 if total_votes != 0 else 0
-        results.append({
-            'president': president,
-            'votes': votes,
-            'percentage': percentage
-        })
+        if president:
+            percentage = (votes / total_votes) * 100 if total_votes != 0 else 0
+            results.append({
+                'president': {
+                    'id': president.id,
+                    'name': president.name,
+                    # Add other relevant president attributes here if needed
+                },
+                'votes': votes,
+                'percentage': percentage
+            })
 
     return {'results': results, 'total_voters': total_voters}
+
+# Route for rendering governor election results
+@app.route('/results/governor', methods=['GET', 'POST'])
+def governor_election_results():
+    counties = db.session.query(Voter.county).distinct().all()  # Get distinct counties
+    print(counties)
+    if request.method == 'POST':
+        selected_county = request.form.get('county')
+        if selected_county:
+            governor_results = db.session.query(Governor.name, func.count(Vote_governor.id)) \
+                .join(Vote_governor, Governor.id == Vote_governor.governor_id) \
+                .join(Voter, Voter.id == Vote_governor.voter_id) \
+                .filter(Voter.county == selected_county) \
+                .group_by(Governor.name).all()
+            total_votes = db.session.query(func.count(Vote_governor.id)) \
+                .join(Voter, Voter.id == Vote_governor.voter_id) \
+                .filter(Voter.county == selected_county).scalar()
+            return render_template('governor_results.html', governor_results=governor_results, total_votes=total_votes, selected_county=selected_county, counties=counties)
+    else:
+        # Default to the voter's county if available
+        if 'voter_logged_in' in session:
+            national_id = session.get('national_id')
+            try:
+                voter = Voter.query.filter_by(national_id=national_id).one()
+                selected_county = voter.county
+            except NoResultFound:
+                flash('No voter found with the provided national ID.', 'error')
+                return redirect(url_for('home'))
+        else:
+            flash('You need to be logged in to view results.', 'error')
+            return redirect(url_for('voter_login'))
+
+        governor_results = db.session.query(Governor.name, func.count(Vote_governor.id)) \
+            .join(Vote_governor, Governor.id == Vote_governor.governor_id) \
+            .join(Voter, Voter.id == Vote_governor.voter_id) \
+            .filter(Voter.county == selected_county) \
+            .group_by(Governor.name).all()
+        total_votes = db.session.query(func.count(Vote_governor.id)) \
+            .join(Voter, Voter.id == Vote_governor.voter_id) \
+            .filter(Voter.county == selected_county).scalar()
+        return render_template('governor_results.html', governor_results=governor_results, total_votes=total_votes, selected_county=selected_county, counties=counties)
