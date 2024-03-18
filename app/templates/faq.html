@@ -23,9 +23,9 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('landing_page') }}">Home</a></li>
-                            <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
-                            <li class="nav-item"><a class="nav-link" href="voters_registration.html">Register</a></li>
-                            <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('voter_login') }}">Login</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('register_voter') }}">Register</a></li>
+                            <li class="nav-item"><a class="nav-link" href="about">About</a></li>
                         </ul>
                     </div>
                 </div>
@@ -131,7 +131,7 @@
         <footer class="bg-dark py-4 mt-auto">
             <div class="container px-5">
                 <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                    <div class="col-auto"><div class="small m-0 text-white">Copyright &copy; Kura App 2023</div></div>
+                    <div class="col-auto"><div class="small m-0 text-white">Copyright &copy; Election App 2023</div></div>
                     <div class="col-auto">
                         <a class="link-light small" href="#!">Privacy</a>
                         <span class="text-white mx-1">&middot;</span>
