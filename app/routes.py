@@ -43,6 +43,11 @@ def admin_dashboard():
     else:
         # If not logged in, redirect to the admin login page
         return redirect(url_for('admin_login'))
+    
+# Route for admin delete
+@app.route('/admin/delete')
+def admin_delete():
+    return render_template('admin_delete.html')
 
 # Route for rendering the vote_president.html file
 @app.route('/vote/president', methods=['GET'])
@@ -393,3 +398,51 @@ def governor_election_results():
             .join(Voter, Voter.id == Vote_governor.voter_id) \
             .filter(Voter.county == selected_county).scalar()
         return render_template('governor_results.html', governor_results=governor_results, total_votes=total_votes, selected_county=selected_county, counties=counties)
+    
+# Route for deleting a president
+@app.route('/admin/delete_president', methods=['POST'])
+def delete_president():
+    name = request.form.get('name')
+    party_name = request.form.get('party_name')
+    president = President.query.filter_by(name=name, party_name=party_name).first()
+    if president:
+        db.session.delete(president)
+        db.session.commit()
+        flash(f"Removed {president.name}", 'success')
+        time.sleep(3)  # Wait for 3 seconds
+        return f"Removed {president.name}"
+    else:
+        flash("President does not exist.", 'danger')
+        return "President does not exist."
+
+# Route for deleting a governor
+@app.route('/admin/delete_governor', methods=['POST'])
+def delete_governor():
+    name = request.form.get('name')
+    party_name = request.form.get('party_name')
+    county = request.form.get('county')
+    governor = Governor.query.filter_by(name=name, party_name=party_name, county=county).first()
+    if governor:
+        db.session.delete(governor)
+        db.session.commit()
+        flash(f"Removed {governor.name}", 'success')
+        time.sleep(3)  # Wait for 3 seconds
+        return f"Removed {governor.name}"
+    else:
+        flash("Governor does not exist.", 'danger')
+        return "Governor does not exist."
+
+# Route for deleting a voter
+@app.route('/admin/delete_voter', methods=['POST'])
+def delete_voter():
+    national_id = request.form.get('national_id')
+    voter = Voter.query.filter_by(national_id=national_id).first()
+    if voter:
+        db.session.delete(voter)
+        db.session.commit()
+        flash(f"Removed {voter.name}", 'success')
+        time.sleep(3)  # Wait for 3 seconds
+        return f"Removed {voter.name}"
+    else:
+        flash("Voter does not exist.", 'danger')
+        return "Voter does not exist."
