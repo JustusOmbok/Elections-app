@@ -29,6 +29,7 @@ class Voter(db.Model):
     name = db.Column(db.String(100), nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
     email = db.Column(db.String(100), nullable=True)
+    password_hash = db.Column(db.String(128))  # New field for storing hashed passwords
     votes_president = db.relationship('Vote_president', backref='voter', lazy=True)
     votes_governor = db.relationship('Vote_governor', backref='voter', lazy=True)
 

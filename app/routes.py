@@ -5,6 +5,7 @@ from app import app, db
 from flask import session, request
 from flask import jsonify
 import requests
+from werkzeug.security import generate_password_hash, check_password_hash
 import time
 import logging
 from sqlalchemy.exc import IntegrityError
@@ -144,13 +145,19 @@ def register_governor():
     db.session.commit()
     return redirect(url_for('admin_dashboard', success='true'))
 
-# Voter routes
+# Update Voter Registration Route
 @app.route('/voter/register', methods=['GET', 'POST'])
 def register_voter():
     if request.method == 'POST':
         data = request.form
+        # Check if password and confirm password match
+        if data['password'] != data['confirm_password']:
+            flash('Passwords do not match. Please try again.', 'error')
+            return redirect(url_for('register_voter'))
+        hashed_password = generate_password_hash(data['password'])  # Hash the password
         new_voter = Voter(national_id=data['national_id'], county=data['county'], name=data['name'],
-                          phone_number=data.get('phone_number'), email=data.get('email'))
+                          phone_number=data.get('phone_number'), email=data.get('email'),
+                          password_hash=hashed_password)  # Store hashed password
         # Additional logic for voter registration
         db.session.add(new_voter)
         db.session.commit()
@@ -163,15 +170,16 @@ def register_voter():
 def voter_login():
     return render_template('login.html')
     
+# Update Voter Login Route
 @app.route('/voter/login', methods=['POST'])
 def voter_login_submit():
-    name = request.form.get('name')
     national_id = request.form.get('national_id')
+    password = request.form.get('password')  # Get password from form
 
     # Query the database for a voter with the provided name and national_id
-    voter = Voter.query.filter_by(name=name, national_id=national_id).first()
+    voter = Voter.query.filter_by(national_id=national_id).first()
 
-    if voter:
+    if voter and check_password_hash(voter.password_hash, password):  # Check hashed password
         # Set session variables to indicate that the user is logged in
         session['voter_logged_in'] = True
         session['national_id'] = national_id  # Set the national_id in the session
@@ -179,7 +187,7 @@ def voter_login_submit():
         return redirect(url_for('home'))
     else:
         # If authentication fails, redirect back to the login page with an error message
-        #flash('Invalid credentials. Please try again.', 'error')
+        flash('Invalid credentials. Please try again.', 'error')
         return redirect(url_for('voter_login'))
 
 # Route for handling voter logout
