@@ -145,7 +145,6 @@ def register_governor():
     db.session.commit()
     return redirect(url_for('admin_dashboard', success='true'))
 
-# Update Voter Registration Route
 @app.route('/voter/register', methods=['GET', 'POST'])
 def register_voter():
     if request.method == 'POST':
@@ -153,7 +152,14 @@ def register_voter():
         # Check if password and confirm password match
         if data['password'] != data['confirm_password']:
             flash('Passwords do not match. Please try again.', 'error')
-            return redirect(url_for('register_voter'))
+            return "Passwords do not match. Please try again."
+
+        # Check if voter already exists
+        existing_voter = Voter.query.filter_by(national_id=data['national_id']).first()
+        if existing_voter:
+            flash('Voter already exists.', 'error')
+            return "Voter already exists."
+
         hashed_password = generate_password_hash(data['password'])  # Hash the password
         new_voter = Voter(national_id=data['national_id'], county=data['county'], name=data['name'],
                           phone_number=data.get('phone_number'), email=data.get('email'),
@@ -161,7 +167,7 @@ def register_voter():
         # Additional logic for voter registration
         db.session.add(new_voter)
         db.session.commit()
-        return redirect(url_for('voter_login'))
+        return "Voter registered successfully."
     else:
         # Render the voter registration form
         return render_template('voter_registration.html')
@@ -186,7 +192,7 @@ def voter_login_submit():
         # Redirect to a dashboard or voter home page
         return redirect(url_for('home'))
     else:
-        # If authentication fails, redirect back to the login page with an error message
+        # If authentication fails, flash a message and redirect back to the login page
         flash('Invalid credentials. Please try again.', 'error')
         return redirect(url_for('voter_login'))
 
