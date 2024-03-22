@@ -132,18 +132,32 @@ def admin_logout():
 @app.route('/president/register', methods=['POST'])
 def register_president():
     data = request.form
-    new_president = President(name=data['name'], party_name=data['party_name'], party_color=data['party_color'])
-    db.session.add(new_president)
-    db.session.commit()
-    return redirect(url_for('admin_dashboard', success='true'))
+    existing_president = President.query.filter_by(party_name=data['party_name']).first()
+    if existing_president:
+        flash('Candidate already exists.')
+        return redirect(url_for('president_register'))
+    else:
+        new_president = President(name=data['name'], party_name=data['party_name'], party_color=data['party_color'])
+        db.session.add(new_president)
+        db.session.commit()
+        return redirect(url_for('admin_dashboard', success='true'))
 
 @app.route('/governor/register', methods=['POST'])
 def register_governor():
     data = request.form
-    new_governor = Governor(name=data['name'], party_name=data['party_name'], party_color=data['party_color'], county=data['county_name'])
+    party_name = data['party_name']
+    county_name = data['county_name']
+    
+    existing_governor = Governor.query.filter_by(party_name=party_name, county=county_name).first()
+    if existing_governor:
+        flash('Candidate already exists.', 'error')
+        return redirect(url_for('governor_register'))
+    
+    new_governor = Governor(name=data['name'], party_name=party_name, party_color=data['party_color'], county=county_name)
     db.session.add(new_governor)
     db.session.commit()
-    return redirect(url_for('admin_dashboard', success='true'))
+    flash('Governor registered successfully.', 'success')
+    return redirect(url_for('admin_dashboard'))
 
 @app.route('/voter/register', methods=['GET', 'POST'])
 def register_voter():

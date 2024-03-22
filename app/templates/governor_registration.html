@@ -32,6 +32,19 @@
         <!-- Page content-->
         <section class="py-5">
             <div class="container px-5">
+                <!-- Flashed Messages -->
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="alert alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+                
                 <!-- Registration form-->
                 <div class="bg-light rounded-3 py-5 px-4 px-md-5 mb-5">
                     <div class="text-center mb-5">
