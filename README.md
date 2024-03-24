@@ -6,7 +6,7 @@ Welcome to our comprehensive voting system project designed to facilitate fair a
 1. Clone the repository to your local machine:  
 git clone https://github.com/JustusOmbok/Elections-app.git
 2. Navigate to the project directory:  
-cd voting-system  
+cd elections-app  
 3. Install the required dependencies:  
 pip install -r requirements.txt  
 4. Set up the database:  
