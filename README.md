@@ -24,7 +24,7 @@ flask run
   - View election results at the national or county level.  
   - Admin can delete presidents, governors, or voters if necessary.  
 ## 🤝 Contribution Guidelines
-We welcome contributions from the community to enhance and improve our voting system project. Here's how you can contribute:  
+I welcome contributions from the community to enhance and improve my voting system project. Here's how you can contribute:  
 
   - Fork the repository and create a new branch for your feature or bug fix.  
   - Follow the PEP 8 coding standards and ensure adequate test coverage.  
