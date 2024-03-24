@@ -11,12 +11,14 @@ class Admin(db.Model):
 
 class President(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    national_id = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     party_name = db.Column(db.String(100), nullable=False)
     party_color = Column(String(20), nullable=False)
 
 class Governor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    national_id = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     party_name = db.Column(db.String(100), nullable=False)
     county = db.Column(db.String(50), nullable=False)

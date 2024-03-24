@@ -43,10 +43,7 @@
                         <h2>Delete President</h2>
                         <form id="delete_president_form" action="{{ url_for('delete_president') }}" method="post" class="mb-4">
                             <div class="mb-3">
-                                <input type="text" class="form-control" name="name" placeholder="President's Name" required autocomplete="on">
-                            </div>
-                            <div class="mb-3">
-                                <input type="text" class="form-control" name="party_name" placeholder="Party Name" required autocomplete="on">
+                                <input type="text" class="form-control" name="national_id" placeholder="President's National ID" required autocomplete="on">
                             </div>
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
@@ -55,13 +52,7 @@
                         <h2>Delete Governor</h2>
                         <form id="delete_governor_form" action="{{ url_for('delete_governor') }}" method="post" class="mb-4">
                             <div class="mb-3">
-                                <input type="text" class="form-control" name="name" placeholder="Governor's Name" required autocomplete="on">
-                            </div>
-                            <div class="mb-3">
-                                <input type="text" class="form-control" name="party_name" placeholder="Party Name" required autocomplete="on">
-                            </div>
-                            <div class="mb-3">
-                                <input type="text" class="form-control" name="county" placeholder="County" required autocomplete="on">
+                                <input type="text" class="form-control" name="national_id" placeholder="Governors's National ID" required autocomplete="on">
                             </div>
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
@@ -97,7 +88,7 @@
         </div>
     </footer>
     <script>
-        var homePageUrl = "{{ url_for('admin_dashboard') }}";
+        var homePageUrl = "{{ url_for('admin_delete') }}";
     </script>
     <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -132,12 +132,12 @@ def admin_logout():
 @app.route('/president/register', methods=['POST'])
 def register_president():
     data = request.form
-    existing_president = President.query.filter_by(party_name=data['party_name']).first()
+    existing_president = President.query.filter_by(national_id=data['national_id']).first()
     if existing_president:
         flash('Candidate already exists.')
         return redirect(url_for('president_register'))
     else:
-        new_president = President(name=data['name'], party_name=data['party_name'], party_color=data['party_color'])
+        new_president = President(national_id=data['national_id'], name=data['name'], party_name=data['party_name'], party_color=data['party_color'])
         db.session.add(new_president)
         db.session.commit()
         return redirect(url_for('admin_dashboard', success='true'))
@@ -145,15 +145,13 @@ def register_president():
 @app.route('/governor/register', methods=['POST'])
 def register_governor():
     data = request.form
-    party_name = data['party_name']
-    county_name = data['county_name']
-    
-    existing_governor = Governor.query.filter_by(party_name=party_name, county=county_name).first()
+
+    existing_governor = Governor.query.filter_by(national_id=data['national_id']).first()
     if existing_governor:
         flash('Candidate already exists.', 'error')
         return redirect(url_for('governor_register'))
     
-    new_governor = Governor(name=data['name'], party_name=party_name, party_color=data['party_color'], county=county_name)
+    new_governor = Governor(national_id=data['national_id'], name=data['name'], party_name=party_name, party_color=data['party_color'], county=county_name)
     db.session.add(new_governor)
     db.session.commit()
     flash('Governor registered successfully.', 'success')
@@ -446,10 +444,8 @@ def delete_president():
 # Route for deleting a governor
 @app.route('/admin/delete_governor', methods=['POST'])
 def delete_governor():
-    name = request.form.get('name')
-    party_name = request.form.get('party_name')
-    county = request.form.get('county')
-    governor = Governor.query.filter_by(name=name, party_name=party_name, county=county).first()
+    national_id = request.form.get('national_id')
+    governor = Governor.query.filter_by(national_id=national_id).first()
     if governor:
         db.session.delete(governor)
         db.session.commit()
