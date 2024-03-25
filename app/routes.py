@@ -10,6 +10,7 @@ import time
 import logging
 from sqlalchemy.exc import IntegrityError
 from app.models import Admin, President, Governor, Voter, Vote_president, Vote_governor
+import time
 
 @app.route('/')
 def landing_page():
@@ -474,37 +475,48 @@ def delete_voter():
 @app.route('/admin/update/president/<national_id>', methods=['GET', 'POST'])
 def update_president(national_id):
     president = President.query.filter_by(national_id=national_id).first()
+    success_message = None  # Initialize success message flag
     if request.method == 'POST':
-        president.name = request.form['name']
-        president.party_name = request.form['party_name']
-        president.party_color = request.form['party_color']
-        db.session.commit()
-        flash('President details updated successfully!', 'success')
-        return redirect(url_for('admin_dashboard'))  # Redirect to admin dashboard
-    return render_template('update_president.html', president=president)
+        if president:
+            president.name = request.form['name']
+            president.party_name = request.form['party_name']
+            president.party_color = request.form['party_color']
+            db.session.commit()
+            success_message = 'President details updated successfully!'
+        else:
+            flash('President with provided National ID not found!', 'error')
+            return redirect(url_for('update_president', national_id=national_id))  # Redirect back to update page
+    return render_template('update_president.html', president=president, success_message=success_message)
+
+@app.route('/admin/get_president_details/<national_id>')
+def get_president_details(national_id):
+    president = President.query.filter_by(national_id=national_id).first()
+    if president:
+        return jsonify({'success': True, 'candidate': {'name': president.name, 'party_name': president.party_name, 'party_color': president.party_color}})
+    else:
+        return jsonify({'success': False})
 
 @app.route('/admin/update/governor/<national_id>', methods=['GET', 'POST'])
 def update_governor(national_id):
     governor = Governor.query.filter_by(national_id=national_id).first()
+    success_message = None  # Initialize success message flag
     if request.method == 'POST':
-        governor.name = request.form['name']
-        governor.party_name = request.form['party_name']
-        governor.county = request.form['county_name']
-        governor.party_color = request.form['party_color']
-        db.session.commit()
-        flash('Governor details updated successfully!', 'success')
-        return redirect(url_for('admin_dashboard'))  # Redirect to admin dashboard
-    return render_template('update_governor.html', governor=governor)
+        if governor:
+            governor.name = request.form['name']
+            governor.party_name = request.form['party_name']
+            governor.party_color = request.form['party_color']
+            governor.county = request.form['county']
+            db.session.commit()
+            success_message = 'Governor details updated successfully!'
+        else:
+            flash('Governor with provided National ID not found!', 'error')
+            return redirect(url_for('update_governor', national_id=national_id))  # Redirect back to update page
+    return render_template('update_governor.html', governor=governor, success_message=success_message)
 
-@app.route('/admin/get_candidate_details/<national_id>')
-def get_candidate_details(national_id):
-    # Query the database to find the candidate based on the national ID
-    president = President.query.filter_by(national_id=national_id).first()
+@app.route('/admin/get_governor_details/<national_id>')
+def get_governor_details(national_id):
     governor = Governor.query.filter_by(national_id=national_id).first()
-
-    if president:
-        return jsonify({'success': True, 'candidate': {'name': president.name, 'party_name': president.party_name, 'party_color': president.party_color}})
-    elif governor:
-        return jsonify({'success': True, 'candidate': {'name': governor.name, 'party_name': governor.party_name, 'party_color': governor.party_color}})
+    if governor:
+        return jsonify({'success': True, 'candidate': {'name': governor.name, 'party_name': governor.party_name, 'party_color': governor.party_color, 'county': governor.county}})
     else:
         return jsonify({'success': False})

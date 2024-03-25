@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update President Details</title>
+    <title>Update Governor Details</title>
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap icons-->
@@ -56,14 +56,7 @@
                     </div>
                     <div class="row gx-5 justify-content-center">
                         <div class="col-lg-8 col-xl-6">
-                            {% if success_message %}
-                            <div class="alert alert-success" role="alert">
-                                {{ success_message }}
-                            </div>
-                            {% endif %}
-                            <form id="updateForm" action="{{ url_for('update_governor', national_id='PLACEHOLDER_ID') }}" method="POST">
-                                <!-- Hidden input field to store the national ID -->
-                                <input type="hidden" id="hidden_national_id" name="hidden_national_id" value="{{ governor.national_id }}">
+                            <form action="" method="POST">
                                 <!-- National ID input-->
                                 <div class="form-floating mb-3">
                                     <input class="form-control" id="national_id_input" type="text" placeholder="Enter national ID number..." onkeypress="checkEnter(event)">
@@ -71,22 +64,22 @@
                                 </div>
                                 <!-- Name input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="name" name="name" type="text" placeholder="Enter candidate's name...">
+                                    <input class="form-control" id="name" name="name" type="text" value="{{ governor.name }}" placeholder="Enter candidate's name...">
                                     <label for="name">Candidate Name</label>
                                 </div>
                                 <!-- Party Name input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="party_name" name="party_name" type="text" placeholder="Enter party name...">
+                                    <input class="form-control" id="party_name" name="party_name" type="text" value="{{ governor.party_name }}" placeholder="Enter party name...">
                                     <label for="party_name">Party Name</label>
                                 </div>
                                 <!-- County Name input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="county" name="county" type="text" placeholder="Enter county...">
-                                    <label for="county">County Name</label>
+                                    <input class="form-control" id="county_name" name="county_name" type="text" value="{{ governor.county }}" placeholder="Enter county name...">
+                                    <label for="county_name">County Name</label>
                                 </div>
                                 <!-- Party Color input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="party_color" name="party_color" type="color" required>
+                                    <input class="form-control" id="party_color" name="party_color" type="color" value="{{ governor.party_color }}" required>
                                     <label for="party_color">Party Color</label>
                                 </div>
                                 <!-- Submit Button-->
@@ -98,23 +91,9 @@
             </div>
         </section>
     </main>
-    <footer class="bg-dark py-4 mt-auto">
-        <div class="container px-5">
-            <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                <div class="col-auto"><div class="small m-0 text-white">Copyright &copy; Elections App 2024</div></div>
-                <div class="col-auto">
-                    <a class="link-light small" href="#!">Privacy</a>
-                    <span class="text-white mx-1">&middot;</span>
-                    <a class="link-light small" href="#!">Terms</a>
-                    <span class="text-white mx-1">&middot;</span>
-                    <a class="link-light small" href="#!">Contact</a>
-                </div>
-            </div>
-        </div>
-    </footer>
     <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Core theme JS-->
-    <script src="{{ url_for('static', filename='js/update_governor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/update.js') }}"></script>
 </body>
 </html>
