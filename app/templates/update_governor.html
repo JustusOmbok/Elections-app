@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elections App - Presidential Candidate Registration</title>
+    <title>Update Governor Details</title>
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap icons-->
@@ -29,6 +29,17 @@
                                 <li><a class="dropdown-item" href="/admin/governor_register">Governor</a></li>
                             </ul>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Update Details
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <!-- Here, you should dynamically generate the URL for updating the president's details -->
+                                <li><a class="dropdown-item" href="{{ url_for('update_president', national_id='ENTER_NATIONAL_ID_HERE') }}">Presidential</a></li>
+                                <!-- Ensure you're passing the national ID dynamically in the URL -->
+                                <li><a class="dropdown-item" href="{{ url_for('update_governor', national_id='ENTER_NATIONAL_ID_HERE') }}">Governor</a></li>
+                            </ul>
+                        </li>
                         <li class="nav-item"><a class="nav-link" href="/admin/update">Update</a></li>
                         <li class="nav-item"><a class="nav-link" href="/admin/delete">Delete</a></li>
                         <li class="nav-item"><a class="nav-link" href="/admin/logout">Logout</a></li>
@@ -36,49 +47,40 @@
                 </div>
             </div>
         </nav>
-        <!-- Page content-->
         <section class="py-5">
             <div class="container px-5">
-                <!-- Flashed messages -->
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                <div class="alert alert-danger" role="alert">
-                    <ul>
-                        {% for message in messages %}
-                        <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
-                {% endwith %}
-                <!-- Registration form-->
                 <div class="bg-light rounded-3 py-5 px-4 px-md-5 mb-5">
                     <div class="text-center mb-5">
                         <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-person-plus"></i></div>
-                        <h1 class="fw-bolder">Presidential Registration</h1>
-                        <p class="lead fw-normal text-muted mb-0">Enter your details</p>
+                        <h1 class="fw-bolder">Update Governor Details</h1>
+                        <p class="lead fw-normal text-muted mb-0">Edit the details below</p>
                     </div>
                     <div class="row gx-5 justify-content-center">
                         <div class="col-lg-8 col-xl-6">
-                            <form action="/president/register" method="POST">
+                            <form action="" method="POST">
                                 <!-- National ID input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="national_id" name="national_id" type="text" placeholder="Enter your national ID number..." />
-                                    <label for="national_id">National ID</label>
+                                    <input class="form-control" id="national_id_input" type="text" placeholder="Enter national ID number..." onkeypress="checkEnter(event)">
+                                    <label for="national_id_input">Enter National ID</label>
                                 </div>
                                 <!-- Name input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="name" name="name" type="text" placeholder="Enter candidate's name..." />
+                                    <input class="form-control" id="name" name="name" type="text" value="{{ governor.name }}" placeholder="Enter candidate's name...">
                                     <label for="name">Candidate Name</label>
                                 </div>
                                 <!-- Party Name input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="party_name" name="party_name" type="text" placeholder="Enter party name..." />
+                                    <input class="form-control" id="party_name" name="party_name" type="text" value="{{ governor.party_name }}" placeholder="Enter party name...">
                                     <label for="party_name">Party Name</label>
+                                </div>
+                                <!-- County Name input-->
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" id="county_name" name="county_name" type="text" value="{{ governor.county }}" placeholder="Enter county name...">
+                                    <label for="county_name">County Name</label>
                                 </div>
                                 <!-- Party Color input-->
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="party_color" name="party_color" type="color" placeholder="Select party color..." required />
+                                    <input class="form-control" id="party_color" name="party_color" type="color" value="{{ governor.party_color }}" required>
                                     <label for="party_color">Party Color</label>
                                 </div>
                                 <!-- Submit Button-->
@@ -90,24 +92,9 @@
             </div>
         </section>
     </main>
-    <!-- Footer-->
-    <footer class="bg-dark py-4 mt-auto">
-        <div class="container px-5">
-            <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                <div class="col-auto"><div class="small m-0 text-white">Copyright &copy; Elections App 2024</div></div>
-                <div class="col-auto">
-                    <a class="link-light small" href="#!">Privacy</a>
-                    <span class="text-white mx-1">&middot;</span>
-                    <a class="link-light small" href="#!">Terms</a>
-                    <span class="text-white mx-1">&middot;</span>
-                    <a class="link-light small" href="#!">Contact</a>
-                </div>
-            </div>
-        </div>
-    </footer>
     <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Core theme JS-->
-    <script src="{{ url_for('static', filename='js/scripts4.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/update.js') }}"></script>
 </body>
 </html>

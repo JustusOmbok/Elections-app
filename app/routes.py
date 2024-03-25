@@ -151,7 +151,7 @@ def register_governor():
         flash('Candidate already exists.', 'error')
         return redirect(url_for('governor_register'))
     
-    new_governor = Governor(national_id=data['national_id'], name=data['name'], party_name=party_name, party_color=data['party_color'], county=county_name)
+    new_governor = Governor(national_id=data['national_id'], name=data['name'], party_name=data['party_name'], party_color=data['party_color'], county=data['county_name'])
     db.session.add(new_governor)
     db.session.commit()
     flash('Governor registered successfully.', 'success')
@@ -470,3 +470,41 @@ def delete_voter():
     else:
         flash("Voter does not exist.", 'danger')
         return "Voter does not exist."
+
+@app.route('/admin/update/president/<national_id>', methods=['GET', 'POST'])
+def update_president(national_id):
+    president = President.query.filter_by(national_id=national_id).first()
+    if request.method == 'POST':
+        president.name = request.form['name']
+        president.party_name = request.form['party_name']
+        president.party_color = request.form['party_color']
+        db.session.commit()
+        flash('President details updated successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))  # Redirect to admin dashboard
+    return render_template('update_president.html', president=president)
+
+@app.route('/admin/update/governor/<national_id>', methods=['GET', 'POST'])
+def update_governor(national_id):
+    governor = Governor.query.filter_by(national_id=national_id).first()
+    if request.method == 'POST':
+        governor.name = request.form['name']
+        governor.party_name = request.form['party_name']
+        governor.county = request.form['county_name']
+        governor.party_color = request.form['party_color']
+        db.session.commit()
+        flash('Governor details updated successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))  # Redirect to admin dashboard
+    return render_template('update_governor.html', governor=governor)
+
+@app.route('/admin/get_candidate_details/<national_id>')
+def get_candidate_details(national_id):
+    # Query the database to find the candidate based on the national ID
+    president = President.query.filter_by(national_id=national_id).first()
+    governor = Governor.query.filter_by(national_id=national_id).first()
+
+    if president:
+        return jsonify({'success': True, 'candidate': {'name': president.name, 'party_name': president.party_name, 'party_color': president.party_color}})
+    elif governor:
+        return jsonify({'success': True, 'candidate': {'name': governor.name, 'party_name': governor.party_name, 'party_color': governor.party_color}})
+    else:
+        return jsonify({'success': False})
