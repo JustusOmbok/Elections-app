@@ -74,7 +74,9 @@
                             {% for result in governor_results %}
                                 <li>{{ result[0] }}: {{ result[1] }} votes</li>
                                 <div class="progress mt-2">
-                                    <div class="progress-bar" role="progressbar" style="width: {{ (result[1]/total_votes)*100 }}%" aria-valuenow="{{ (result[1]/total_votes)*100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar" role="progressbar" style="width: {{ (result[1]/total_votes)*100 }}%" aria-valuenow="{{ (result[1]/total_votes)*100 }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ '%.2f' % ((result[1]/total_votes)*100) }}%
+                                    </div>
                                 </div>
                             {% endfor %}
                         </ul>

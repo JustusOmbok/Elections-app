@@ -6,7 +6,7 @@ function checkEnter(event) {
             alert("Please enter your ID!");
             return;
         }
-        var loggedInNationalId = "{{ session.get('national_id') }}"; // Get the national ID from the session
+        // Use loggedInNationalId obtained from HTML template
         if (!loggedInNationalId) {
             alert("Please log in first!");
             return;

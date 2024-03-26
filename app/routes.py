@@ -88,30 +88,28 @@ def register_admin():
     # Additional logic for admin registration
     db.session.add(new_admin)
     db.session.commit()
-    return redirect(url_for('admin_login'))  # Redirect to admin login page
-
-@app.route('/admin/login', methods=['GET'])
-def admin_login():
-    return render_template('admin_login.html')
+    return redirect(url_for('admin_login_submit'))  # Redirect to admin login page
 
 # Route for handling admin login form submission
-@app.route('/admin/login', methods=['POST'])
+@app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login_submit():
-    station = request.form.get('station')
-    work_id = request.form.get('work_id')
+    if request.method == 'POST':
+        station = request.form.get('station')
+        work_id = request.form.get('work_id')
 
-    # Query the database for an admin with the provided Station and Work ID
-    admin = Admin.query.filter_by(station=station, work_id=work_id).first()
+        # Query the database for an admin with the provided Station and Work ID
+        admin = Admin.query.filter_by(station=station, work_id=work_id).first()
 
-    if admin:
-        # Set a session variable to indicate that the user is logged in
-        session['admin_logged_in'] = True
-        # Redirect to a dashboard or admin home page
-        return redirect(url_for('admin_dashboard'))
-    else:
-        # If authentication fails, redirect back to the login page with an error message
-        flash('Invalid credentials. Please try again.', 'error')
-        return redirect(url_for('admin_login'))
+        if admin:
+            # Set a session variable to indicate that the user is logged in
+            session['admin_logged_in'] = True
+            # Redirect to a dashboard or admin home page
+            return redirect(url_for('admin_dashboard'))
+        else:
+            # If authentication fails, redirect back to the login page with an error message
+            flash('Invalid credentials. Please try again.', 'error')
+            return redirect(url_for('admin_login_submit'))
+    return render_template('admin_login.html')
 
 # Route for handling admin logout
 @app.route('/admin/logout', methods=['GET'])
@@ -182,30 +180,28 @@ def register_voter():
     else:
         # Render the voter registration form
         return render_template('voter_registration.html')
-
-@app.route('/voter/login', methods=['GET'])
-def voter_login():
-    return render_template('login.html')
     
 # Update Voter Login Route
-@app.route('/voter/login', methods=['POST'])
+@app.route('/voter/login', methods=['GET', 'POST'])
 def voter_login_submit():
-    national_id = request.form.get('national_id')
-    password = request.form.get('password')  # Get password from form
+    if request.method == 'POST':
+        national_id = request.form.get('national_id')
+        password = request.form.get('password')  # Get password from form
 
-    # Query the database for a voter with the provided name and national_id
-    voter = Voter.query.filter_by(national_id=national_id).first()
+        # Query the database for a voter with the provided name and national_id
+        voter = Voter.query.filter_by(national_id=national_id).first()
 
-    if voter and check_password_hash(voter.password_hash, password):  # Check hashed password
-        # Set session variables to indicate that the user is logged in
-        session['voter_logged_in'] = True
-        session['national_id'] = national_id  # Set the national_id in the session
-        # Redirect to a dashboard or voter home page
-        return redirect(url_for('home'))
-    else:
-        # If authentication fails, flash a message and redirect back to the login page
-        flash('Invalid credentials. Please try again.', 'error')
-        return redirect(url_for('voter_login'))
+        if voter and check_password_hash(voter.password_hash, password):  # Check hashed password
+            # Set session variables to indicate that the user is logged in
+            session['voter_logged_in'] = True
+            session['national_id'] = national_id  # Set the national_id in the session
+            # Redirect to a dashboard or voter home page
+            return redirect(url_for('home'))
+        else:
+            # If authentication fails, flash a message and redirect back to the login page
+            flash('Invalid credentials. Please try again.', 'error')
+            return redirect(url_for('voter_login_submit'))
+    return render_template('login.html')
 
 # Route for handling voter logout
 @app.route('/voter/logout', methods=['GET'])
@@ -532,7 +528,11 @@ def update_voter(national_id):
         else:
             flash('Voter with provided National ID not found!', 'error')
             return redirect(url_for('update_voter', national_id=national_id))  # Redirect back to update page
-    return render_template('update_voter.html', voter=voter, success_message=success_message)
+    
+    # Get the national ID from the session
+    loggedInNationalId = session.get('national_id')
+
+    return render_template('update_voter.html', voter=voter, success_message=success_message, loggedInNationalId=loggedInNationalId)
 
 @app.route('/get_voter_details/<national_id>')
 def get_voter_details(national_id):
