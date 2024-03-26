@@ -28,14 +28,6 @@ def admin():
 def admin_register():
     return render_template('admin_registration.html')
 
-@app.route('/admin/president_register')
-def president_register():
-    return render_template('presidential_registration.html')
-
-@app.route('/admin/governor_register')
-def governor_register():
-    return render_template('governor_registration.html')
-
 # Route for rendering the admin dashboard
 @app.route('/admin/dashboard', methods=['GET'])
 def admin_dashboard():
@@ -130,33 +122,39 @@ def admin_logout():
     return redirect(url_for('admin'))
 
 # Candidate routes
-@app.route('/president/register', methods=['POST'])
+@app.route('/president/register', methods=['GET', 'POST'])
 def register_president():
-    data = request.form
-    existing_president = President.query.filter_by(national_id=data['national_id']).first()
-    if existing_president:
-        flash('Candidate already exists.')
-        return redirect(url_for('president_register'))
-    else:
-        new_president = President(national_id=data['national_id'], name=data['name'], party_name=data['party_name'], party_color=data['party_color'])
-        db.session.add(new_president)
-        db.session.commit()
-        return redirect(url_for('admin_dashboard', success='true'))
+    success_message = None
+    if request.method == 'POST':
+        data = request.form
+        existing_president = President.query.filter_by(national_id=data['national_id']).first()
+        if existing_president:
+            flash('Candidate already exists.')
+            return render_template('presidential_registration.html')
+        else:
+            new_president = President(national_id=data['national_id'], name=data['name'], party_name=data['party_name'], party_color=data['party_color'])
+            db.session.add(new_president)
+            db.session.commit()
+            success_message = 'President registered successfully!'
+    return render_template('presidential_registration.html', success_message=success_message)
 
-@app.route('/governor/register', methods=['POST'])
+
+@app.route('/governor/register', methods=['GET', 'POST'])
 def register_governor():
-    data = request.form
+    success_message = None
+    if request.method == 'POST':
+        data = request.form
 
-    existing_governor = Governor.query.filter_by(national_id=data['national_id']).first()
-    if existing_governor:
-        flash('Candidate already exists.', 'error')
-        return redirect(url_for('governor_register'))
+        existing_governor = Governor.query.filter_by(national_id=data['national_id']).first()
+        if existing_governor:
+            flash('Candidate already exists.', 'error')
+            return render_template('governor_registration.html')
     
-    new_governor = Governor(national_id=data['national_id'], name=data['name'], party_name=data['party_name'], party_color=data['party_color'], county=data['county_name'])
-    db.session.add(new_governor)
-    db.session.commit()
-    flash('Governor registered successfully.', 'success')
-    return redirect(url_for('admin_dashboard'))
+        new_governor = Governor(national_id=data['national_id'], name=data['name'], party_name=data['party_name'], party_color=data['party_color'], county=data['county_name'])
+        db.session.add(new_governor)
+        db.session.commit()
+        success_message = 'Governor registered successfully!'
+    return render_template('governor_registration.html', success_message=success_message)
 
 @app.route('/voter/register', methods=['GET', 'POST'])
 def register_voter():
@@ -429,14 +427,13 @@ def governor_election_results():
 # Route for deleting a president
 @app.route('/admin/delete_president', methods=['POST'])
 def delete_president():
-    name = request.form.get('name')
-    party_name = request.form.get('party_name')
-    president = President.query.filter_by(name=name, party_name=party_name).first()
+    national_id = request.form.get('national_id')
+    president = President.query.filter_by(national_id=national_id).first()
     if president:
         db.session.delete(president)
         db.session.commit()
         flash(f"Removed {president.name}", 'success')
-        time.sleep(3)  # Wait for 3 seconds
+        #time.sleep(3)  # Wait for 3 seconds
         return f"Removed {president.name}"
     else:
         flash("President does not exist.", 'danger')
@@ -451,7 +448,7 @@ def delete_governor():
         db.session.delete(governor)
         db.session.commit()
         flash(f"Removed {governor.name}", 'success')
-        time.sleep(3)  # Wait for 3 seconds
+        #time.sleep(3)  # Wait for 3 seconds
         return f"Removed {governor.name}"
     else:
         flash("Governor does not exist.", 'danger')
@@ -466,7 +463,6 @@ def delete_voter():
         db.session.delete(voter)
         db.session.commit()
         flash(f"Removed {voter.name}", 'success')
-        time.sleep(3)  # Wait for 3 seconds
         return f"Removed {voter.name}"
     else:
         flash("Voter does not exist.", 'danger')
@@ -518,5 +514,30 @@ def get_governor_details(national_id):
     governor = Governor.query.filter_by(national_id=national_id).first()
     if governor:
         return jsonify({'success': True, 'candidate': {'name': governor.name, 'party_name': governor.party_name, 'party_color': governor.party_color, 'county': governor.county}})
+    else:
+        return jsonify({'success': False})
+    
+@app.route('/update/voter/<national_id>', methods=['GET', 'POST'])
+def update_voter(national_id):
+    voter = Voter.query.filter_by(national_id=national_id).first()
+    success_message = None  # Initialize success message flag
+    if request.method == 'POST':
+        if voter:
+            voter.county = request.form['county']
+            voter.name = request.form['name']
+            voter.phone_number = request.form['phone_number']
+            voter.email = request.form['email']
+            db.session.commit()
+            success_message = 'Voter details updated successfully!'
+        else:
+            flash('Voter with provided National ID not found!', 'error')
+            return redirect(url_for('update_voter', national_id=national_id))  # Redirect back to update page
+    return render_template('update_voter.html', voter=voter, success_message=success_message)
+
+@app.route('/get_voter_details/<national_id>')
+def get_voter_details(national_id):
+    voter = Voter.query.filter_by(national_id=national_id).first()
+    if voter:
+        return jsonify({'success': True, 'elector': {'county': voter.county, 'name': voter.name, 'phone_number': voter.phone_number, 'email': voter.email}})
     else:
         return jsonify({'success': False})
