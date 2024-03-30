@@ -166,7 +166,6 @@ def register_voter():
         # Check if voter already exists
         existing_voter = Voter.query.filter_by(national_id=data['national_id']).first()
         if existing_voter:
-            flash('Voter already exists.', 'error')
             return "Voter already exists."
 
         hashed_password = generate_password_hash(data['password'])  # Hash the password

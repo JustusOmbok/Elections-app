@@ -7,6 +7,7 @@
     <meta name="author" content="" />
     <title>Elections App - Home</title>
     <link rel="icon" type="image/x-icon" href="static/assets/favicon.ico" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
     <link href="static/css/styles.css" rel="stylesheet" />
 </head>
@@ -47,21 +48,105 @@
             </div>
         </header>
     </main>
-    <footer class="bg-dark py-4 mt-auto">
+    <section class="bg-light py-5">
         <div class="container px-5">
-            <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                <div class="col-auto"><div class="small m-0 text-white">Copyright &copy; Elections App 2024</div></div>
-                <div class="col-auto">
-                    <a class="link-light small" href="#!">Privacy</a>
-                    <span class="text-white mx-1">&middot;</span>
-                    <a class="link-light small" href="#!">Terms</a>
-                    <span class="text-white mx-1">&middot;</span>
-                    <a class="link-light small" href="#!">Contact</a>
+            <div class="row gx-5 align-items-center">
+                <div class="col-lg-6 order-lg-2">
+                    <div class="p-5">
+                        <h2 class="display-4 fw-bold">What the Elections App Does</h2>
+                        <p class="lead fw-normal">Quickly register candidates and parties with our easy-to-use platform.</p>
+                        <!-- Additional content about the app's functionalities -->
+                        <ul>
+                            <li>Efficient candidate and party registration process.</li>
+                            <li>Secure and transparent voting system.</li>
+                            <li>Real-time election result tracking.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6 order-lg-1">
+                    <img class="img-fluid rounded-3" src="static/assets/admin-login.png" alt="registration" style="width: 100%; height: auto;" />
+                    <img class="img-fluid rounded-3" src="static/assets/prezo-reg.png" alt="prezo" style="width: 100%; height: auto;" />
+                    <img class="img-fluid rounded-3" src="static/assets/gov-reg.png" alt="gov" style="width: 100%; height: auto;" />
                 </div>
             </div>
         </div>
+    </section>
+    <section class="py-5">
+        <div class="container px-5">
+            <h2 class="display-4 text-center mb-5">What Election Officials Say About Us</h2>
+            <div class="row gx-5">
+                <div class="col-lg-4 mb-5">
+                    <div class="testimonial text-center">
+                        <p class="mb-4">"The Elections App has revolutionized the way we manage elections. It's intuitive, efficient, and highly reliable."</p>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="testimonial-img">
+                                <img class="img-fluid rounded-circle" src="static/assets/testimonial.jpg" alt="Testimonial 1" />
+                            </div>
+                            <div class="ms-3">
+                                <div class="fw-bold">Minne Karish</div>
+                                <div class="text-muted">Election Officer, County XYZ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Additional testimonials can be added here -->
+                <div class="col-lg-4 mb-5">
+                    <div class="testimonial text-center">
+                        <p class="mb-4">"The Elections App has simplified our election processes and increased voter engagement. It's a game-changer!"</p>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="testimonial-img">
+                                <img class="img-fluid rounded-circle" src="static/assets/testimonial.jpg" alt="Testimonial 2" />
+                            </div>
+                            <div class="ms-3">
+                                <div class="fw-bold">Emily Nabwire</div>
+                                <div class="text-muted">Election Officer, County ABC</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-5">
+                    <div class="testimonial text-center">
+                        <p class="mb-4">"The Elections App's user-friendly interface and robust features have made our election management more efficient and transparent."</p>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="testimonial-img">
+                                <img class="img-fluid rounded-circle" src="static/assets/testimonial.jpg" alt="Testimonial 3" />
+                            </div>
+                            <div class="ms-3">
+                                <div class="fw-bold">Ethan Ekaru</div>
+                                <div class="text-muted">Election Officer, County XYZ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="bg-light py-5">
+        <div class="container px-5">
+            <div class="row gx-5 align-items-center justify-content-center">
+                <div class="col-lg-8 col-xl-7">
+                    <div class="text-center">
+                        <h2 class="fw-bolder mb-2">Why Choose Our App</h2>
+                        <p class="lead fw-normal text-muted mb-4">With our Elections App, you can:</p>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="bi bi-check-circle text-primary"></i> Easily register candidates to participate in the election.</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-primary"></i> Our platform is designed to be easy to use for election admins.</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-primary"></i> Easily edit candidates' information.</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-primary"></i> Easily delete both candidates and voters.</li>
+                            <!-- Add more points here if needed -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="bg-dark py-4 mt-auto">
+        <div class="container px-5">
+            <!-- Footer content -->
+            <div class="small text-center text-muted">Elections App &copy; 2024</div>
+        </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/scripts.js"></script>
+    <script src="static/js/scripts.js"></script>
 </body>
 </html>
