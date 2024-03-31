@@ -40,7 +40,7 @@
                                 <li><a class="dropdown-item" href="/results/governor">Governor</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('update_voter', national_id='ENTER_NATIONAL_ID_HERE') }}">Update Details</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('update_voter') }}">My Details</a></li>
                         <li class="nav-item"><a class="nav-link" href="/voter/logout">Logout</a></li>
                     </ul>
                 </div>
@@ -61,36 +61,33 @@
                                 {{ success_message }}
                             </div>
                             {% endif %}
-                            <form id="updateForm" action="{{ url_for('update_voter', national_id='PLACEHOLDER_ID') }}" method="POST">
-                                <!-- Hidden input field to store the national ID -->
-                                <input type="hidden" id="hidden_national_id" name="hidden_national_id" value="{{ voter.national_id }}">
-                                <!-- National ID input-->
+                            <form id="updateForm" action="{{ url_for('update_voter') }}" method="POST">
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="national_id_input" type="text" placeholder="Enter national ID number..." onkeypress="checkEnter(event)">
-                                    <label for="national_id_input">Enter National ID</label>
+                                    <input class="form-control" id="national_id" name="national_id" value="{{ voter.national_id }}" readonly>
+                                    <label for="national_id">National ID</label>
                                 </div>
-                                <!-- County input-->
+                                
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="county" name="county" type="text" placeholder="Enter county...">
+                                    <input class="form-control" id="county" name="county" value="{{ voter.county }}">
                                     <label for="county">County</label>
                                 </div>
-                                <!-- Name input-->
+                                
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="name" name="name" type="text" placeholder="Enter voter's name...">
-                                    <label for="name">Voter Name</label>
+                                    <input class="form-control" id="name" name="name" value="{{ voter.name }}">
+                                    <label for="name">Name</label>
                                 </div>
-                                <!-- Phone Number input-->
+                                
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="phone_number" name="phone_number" type="text" placeholder="Enter phone number...">
+                                    <input class="form-control" id="phone_number" name="phone_number" value="{{ voter.phone_number }}">
                                     <label for="phone_number">Phone Number</label>
                                 </div>
-                                <!-- Email input-->
+                                
                                 <div class="form-floating mb-3">
-                                    <input class="form-control" id="email" name="email" type="text" placeholder="Enter email...">
+                                    <input class="form-control" id="email" name="email" value="{{ voter.email }}">
                                     <label for="email">Email</label>
                                 </div>
                                 <!-- Submit Button-->
-                                <div class="d-grid"><button class="btn btn-primary btn-lg" type="submit">Submit</button></div>
+                                <div class="d-grid"><button class="btn btn-primary btn-lg" type="submit">Update</button></div>
                             </form>
                         </div>
                     </div>

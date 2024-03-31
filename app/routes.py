@@ -512,10 +512,13 @@ def get_governor_details(national_id):
     else:
         return jsonify({'success': False})
     
-@app.route('/update/voter/<national_id>', methods=['GET', 'POST'])
-def update_voter(national_id):
+# Update the Flask route to fetch the details of the logged-in voter
+@app.route('/update_voter', methods=['GET', 'POST'])
+def update_voter():
+    national_id = session.get('national_id')
     voter = Voter.query.filter_by(national_id=national_id).first()
-    success_message = None  # Initialize success message flag
+    success_message = None
+
     if request.method == 'POST':
         if voter:
             voter.county = request.form['county']
@@ -526,17 +529,5 @@ def update_voter(national_id):
             success_message = 'Voter details updated successfully!'
         else:
             flash('Voter with provided National ID not found!', 'error')
-            return redirect(url_for('update_voter', national_id=national_id))  # Redirect back to update page
-    
-    # Get the national ID from the session
-    loggedInNationalId = session.get('national_id')
 
-    return render_template('update_voter.html', voter=voter, success_message=success_message, loggedInNationalId=loggedInNationalId)
-
-@app.route('/get_voter_details/<national_id>')
-def get_voter_details(national_id):
-    voter = Voter.query.filter_by(national_id=national_id).first()
-    if voter:
-        return jsonify({'success': True, 'elector': {'county': voter.county, 'name': voter.name, 'phone_number': voter.phone_number, 'email': voter.email}})
-    else:
-        return jsonify({'success': False})
+    return render_template('update_voter.html', voter=voter, success_message=success_message)

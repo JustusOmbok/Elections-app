@@ -1,26 +1,6 @@
-function checkEnter(event) {
-    if (event.keyCode === 13) { // Check if the pressed key is "Enter"
-        event.preventDefault(); // Prevent form submission
-        var nationalId = document.getElementById("national_id_input").value.trim(); // Get the entered national ID
-        if (nationalId === "") {
-            alert("Please enter your ID!");
-            return;
-        }
-        // Use loggedInNationalId obtained from HTML template
-        if (!loggedInNationalId) {
-            alert("Please log in first!");
-            return;
-        }
-        if (loggedInNationalId !== nationalId) {
-            alert("Please enter your own ID!");
-            return;
-        }
-        fetchElectorDetails(nationalId); // Call function to fetch voter details
-    }
-}
-
-function fetchElectorDetails(nationalId) {
-    fetch("/get_voter_details/" + nationalId)
+// Fetch voter details when the page loads
+document.addEventListener("DOMContentLoaded", function() {
+    fetch("/update_voter")
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -28,14 +8,9 @@ function fetchElectorDetails(nationalId) {
                 document.getElementById("name").value = data.elector.name;
                 document.getElementById("phone_number").value = data.elector.phone_number;
                 document.getElementById("email").value = data.elector.email;
-                // Update the hidden input field with the entered national ID
-                document.getElementById("hidden_national_id").value = nationalId;
-                // Update the form action with the entered national ID
-                var formAction = "/update/voter/" + nationalId;
-                document.getElementById("updateForm").setAttribute("action", formAction);
             } else {
-                alert("No voter found with the provided national ID.");
+                alert("Failed to fetch voter details.");
             }
         })
         .catch(error => console.error("Error:", error));
-}
+});
