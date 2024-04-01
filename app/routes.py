@@ -487,22 +487,19 @@ def get_president_details(national_id):
     else:
         return jsonify({'success': False})
 
-@app.route('/admin/update/governor/<national_id>', methods=['GET', 'POST'])
-def update_governor(national_id):
+@app.route('/admin/update_governor', methods=['POST'])
+def update_governor():
+    national_id = request.form['national_id']
     governor = Governor.query.filter_by(national_id=national_id).first()
-    success_message = None  # Initialize success message flag
-    if request.method == 'POST':
-        if governor:
-            governor.name = request.form['name']
-            governor.party_name = request.form['party_name']
-            governor.party_color = request.form['party_color']
-            governor.county = request.form['county']
-            db.session.commit()
-            success_message = 'Governor details updated successfully!'
-        else:
-            flash('Governor with provided National ID not found!', 'error')
-            return redirect(url_for('update_governor', national_id=national_id))  # Redirect back to update page
-    return render_template('update_governor.html', governor=governor, success_message=success_message)
+    if governor:
+        governor.name = request.form['name']
+        governor.party_name = request.form['party_name']
+        governor.party_color = request.form['party_color']
+        governor.county = request.form['county']
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Governor details updated successfully'})
+    else:
+        return jsonify({'success': False, 'message': 'Governor not found'})
 
 @app.route('/admin/get_governor_details/<national_id>')
 def get_governor_details(national_id):
@@ -511,6 +508,21 @@ def get_governor_details(national_id):
         return jsonify({'success': True, 'candidate': {'name': governor.name, 'party_name': governor.party_name, 'party_color': governor.party_color, 'county': governor.county}})
     else:
         return jsonify({'success': False})
+
+@app.route('/admin/get_governors_by_county', methods=['GET', 'POST'])
+def get_governors_by_county():
+    if request.method == 'POST':
+        county_name = request.form['county']  # Assuming the dropdown in the HTML sends the selected county name
+        governors = Governor.query.filter_by(county=county_name).all()
+        governor_list = [{'national_id': governor.national_id, 'name': governor.name} for governor in governors]
+        return jsonify({'governors': governor_list})
+    return render_template('update_governor.html')
+
+@app.route('/admin/get_counties', methods=['GET'])
+def get_counties():
+    counties = Governor.query.distinct(Governor.county).all()
+    county_list = [county.county for county in counties]
+    return jsonify({'counties': county_list})
     
 # Update the Flask route to fetch the details of the logged-in voter
 @app.route('/update_voter', methods=['GET', 'POST'])

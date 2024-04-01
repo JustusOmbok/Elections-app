@@ -39,7 +39,7 @@
                                     <!-- Here, you should dynamically generate the URL for updating the president's details -->
                                     <li><a class="dropdown-item" href="{{ url_for('update_president', national_id='ENTER_NATIONAL_ID_HERE') }}">Presidential</a></li>
                                     <!-- Ensure you're passing the national ID dynamically in the URL -->
-                                    <li><a class="dropdown-item" href="{{ url_for('update_governor', national_id='ENTER_NATIONAL_ID_HERE') }}">Governor</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('get_governors_by_county') }}">Governor</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item"><a class="nav-link" href="/admin/delete">Delete</a></li>
