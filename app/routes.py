@@ -418,74 +418,54 @@ def governor_election_results():
             .join(Voter, Voter.id == Vote_governor.voter_id) \
             .filter(Voter.county == selected_county).scalar()
         return render_template('governor_results.html', governor_results=governor_results, total_votes=total_votes, selected_county=selected_county, counties=counties)
-    
-# Route for deleting a president
-@app.route('/admin/delete_president', methods=['POST'])
-def delete_president():
-    national_id = request.form.get('national_id')
+
+@app.route('/admin/view_president')
+def view_president():
+    return render_template('view_president.html')
+
+@app.route('/admin/update_president', methods=['POST'])
+def update_president():
+    national_id = request.form['national_id']
+    print("Received national_id:", national_id)
     president = President.query.filter_by(national_id=national_id).first()
     if president:
-        db.session.delete(president)
+        president.name = request.form['name']
+        president.party_name = request.form['party_name']
+        president.party_color = request.form['party_color']
         db.session.commit()
-        flash(f"Removed {president.name}", 'success')
-        #time.sleep(3)  # Wait for 3 seconds
-        return f"Removed {president.name}"
+        return jsonify({'success': True, 'message': 'President details updated successfully'})
     else:
-        flash("President does not exist.", 'danger')
-        return "President does not exist."
-
-# Route for deleting a governor
-@app.route('/admin/delete_governor', methods=['POST'])
-def delete_governor():
-    national_id = request.form.get('national_id')
-    governor = Governor.query.filter_by(national_id=national_id).first()
-    if governor:
-        db.session.delete(governor)
-        db.session.commit()
-        flash(f"Removed {governor.name}", 'success')
-        #time.sleep(3)  # Wait for 3 seconds
-        return f"Removed {governor.name}"
-    else:
-        flash("Governor does not exist.", 'danger')
-        return "Governor does not exist."
-
-# Route for deleting a voter
-@app.route('/admin/delete_voter', methods=['POST'])
-def delete_voter():
-    national_id = request.form.get('national_id')
-    voter = Voter.query.filter_by(national_id=national_id).first()
-    if voter:
-        db.session.delete(voter)
-        db.session.commit()
-        flash(f"Removed {voter.name}", 'success')
-        return f"Removed {voter.name}"
-    else:
-        flash("Voter does not exist.", 'danger')
-        return "Voter does not exist."
-
-@app.route('/admin/update/president/<national_id>', methods=['GET', 'POST'])
-def update_president(national_id):
-    president = President.query.filter_by(national_id=national_id).first()
-    success_message = None  # Initialize success message flag
-    if request.method == 'POST':
-        if president:
-            president.name = request.form['name']
-            president.party_name = request.form['party_name']
-            president.party_color = request.form['party_color']
-            db.session.commit()
-            success_message = 'President details updated successfully!'
-        else:
-            flash('President with provided National ID not found!', 'error')
-            return redirect(url_for('update_president', national_id=national_id))  # Redirect back to update page
-    return render_template('update_president.html', president=president, success_message=success_message)
+        return jsonify({'success': False, 'message': 'President not found'})
 
 @app.route('/admin/get_president_details/<national_id>')
 def get_president_details(national_id):
     president = President.query.filter_by(national_id=national_id).first()
     if president:
-        return jsonify({'success': True, 'candidate': {'name': president.name, 'party_name': president.party_name, 'party_color': president.party_color}})
+        return jsonify({'success': True, 'president': {'name': president.name, 'party_name': president.party_name, 'party_color': president.party_color}})
     else:
         return jsonify({'success': False})
+
+# Route to get all presidents
+@app.route('/admin/get_presidents', methods=['GET'])
+def get_presidents():
+    presidents = President.query.all()
+    president_list = [{'national_id': president.national_id, 'name': president.name} for president in presidents]
+    return jsonify({'presidents': president_list})
+
+@app.route('/admin/delete_president', methods=['POST'])
+def delete_president():
+    national_id = request.form.get('national_id')
+    print("Received national_id:", national_id)
+    president = President.query.filter_by(national_id=national_id).first()
+    if president:
+        try:
+            db.session.delete(president)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'President deleted successfully'})
+        except Exception as e:
+            return jsonify({'success': False, 'message': 'Error deleting president: ' + str(e)})
+    else:
+        return jsonify({'success': False, 'message': 'President not found'})
 
 @app.route('/admin/update_governor', methods=['POST'])
 def update_governor():
@@ -523,6 +503,20 @@ def get_counties():
     counties = Governor.query.distinct(Governor.county).all()
     county_list = [county.county for county in counties]
     return jsonify({'counties': county_list})
+
+@app.route('/admin/delete_governor', methods=['POST'])
+def delete_governor():
+    national_id = request.form.get('national_id')
+    governor = Governor.query.filter_by(national_id=national_id).first()
+    if governor:
+        try:
+            db.session.delete(governor)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Governor deleted successfully'})
+        except Exception as e:
+            return jsonify({'success': False, 'message': 'Error deleting governor: ' + str(e)})
+    else:
+        return jsonify({'success': False, 'message': 'Governor not found'})
     
 # Update the Flask route to fetch the details of the logged-in voter
 @app.route('/update_voter', methods=['GET', 'POST'])

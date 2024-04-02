@@ -57,8 +57,8 @@ function getGovernorDetails(nationalId) {
                     <input class="form-control" id="county" name="county" value="${data.candidate.county}">
                     <label for="county">County</label>
                 </div>
-                <button type="button" class="btn btn-primary" onclick="updateGovernor('${nationalId}')">Save</button>
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal">Delete</button>
+                <button type="button" class="btn btn-primary" onclick="updateGovernor('${nationalId}')">Update</button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" onclick="setDeleteGovernorId('${nationalId}')">Delete</button>
             `;
             governorDetails.style.display = "block"; // Show the form after fetching governor details
         });
@@ -96,18 +96,27 @@ function updateGovernor(nationalId) {
     });
 }
 
-function deleteGovernor(nationalId) {
+function setDeleteGovernorId(nationalId) {
+    window.currentGovernorId = nationalId;
+}
+
+function deleteGovernor() {
+    var nationalId = window.currentGovernorId;
+    var formData = new FormData();
+    formData.append('national_id', nationalId);
+
     fetch("/admin/delete_governor", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "national_id=" + encodeURIComponent(nationalId)
+        body: formData
     })
-    .then(response => response.text())
-    .then(message => {
-        alert(message);
-        // Reload the governors list after deletion
-        getGovernors();
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            // Reload the governors list after deletion
+            window.location.reload();
+        } else {
+            alert("Failed to delete governor: " + data.message);
+        }
     });
 }

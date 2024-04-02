@@ -31,16 +31,15 @@
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Update Details
+                                View Candidates
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <!-- Here, you should dynamically generate the URL for updating the president's details -->
-                                <li><a class="dropdown-item" href="{{ url_for('update_president', national_id='ENTER_NATIONAL_ID_HERE') }}">Presidential</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('view_president') }}">Presidents</a></li>
                                 <!-- Ensure you're passing the national ID dynamically in the URL -->
-                                <li><a class="dropdown-item" href="{{ url_for('update_governor', national_id='ENTER_NATIONAL_ID_HERE') }}">Governor</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('get_governors_by_county') }}">Governors</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="/admin/delete">Delete</a></li>
                         <li class="nav-item"><a class="nav-link" href="/admin/logout">Logout</a></li>
                     </ul>
                 </div>
